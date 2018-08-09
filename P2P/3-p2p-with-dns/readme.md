@@ -8,3 +8,5 @@ In this section, you need to:
 3. use alias to build a p2p topology
   `node ./peer.js yeze01 yeze02 yeze03`
   .....
+
+4. build a distributed p2p network (optional)

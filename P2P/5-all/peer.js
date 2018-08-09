@@ -11,11 +11,6 @@ console.log('me: ', me);
 console.log('friends: ', firends);
 
 
-function toAddress(name) {
-  // TODO: implement your own address hash function. (you can also use 'toPort()')
-  // -----------------------------------------------------------------------
-}
-
 // Register DNS
 register(me, toAddress(me));
 
@@ -25,14 +20,18 @@ const streams = streamSet();
 
 // Handle firend -> you
 swarm.on('connection', (newFriend) => {
+  console.log('new connection');
   newFriend = jsonStream(newFriend);
   streams.add(newFriend);
 
   newFriend.on('data', (data) => {
-    console.log(data.username + '> ' + data.message);
+    if (isMessageRegistered(data)) {
+      return;
+    }
+    process.stdout.write(data.username + '> ' + data.message + '\n');
+    registerId(data.id);
+    broadcast(data);
   });
-
-  console.log('new connection');
 });
 
 // Handle you -> friend
@@ -42,7 +41,42 @@ process.stdin.on('data', (data) => {
     message: data.toString().trim()
   };
 
+  assignIdToNewMessage(payload);
+  registerId(payload.id);
+  broadcast(payload);
+});
+
+
+// TODO: implement your own rule to solve the 'echo' issue
+// (maybe you can use a unique message id to distinct your message?)
+// ------------------------------------------------------
+let n = 0;
+let logs = {}
+
+function genUniqId() {
+  return me + '.' + (++n);
+}
+
+function isMessageRegistered(payload) {
+  return logs[payload.id];
+}
+
+function assignIdToNewMessage(payload) {
+  let id = genUniqId();
+  payload.id = id;
+  return payload;
+}
+
+function registerId(id) {
+  logs[id] = true;
+}
+
+function broadcast(payload) {
   streams.forEach((friend) => {
     friend.write(payload);
-  })
-});
+  });
+}
+
+function toAddress(name) {
+  return 'localhost:' + toPort(name);
+}
