@@ -27,4 +27,4 @@ const server = net.createServer((thisSocket) => {
   streams.add(thisSocket);
 });
 
-server.listen(9000);
+server.listen(9000, '0.0.0.0');
