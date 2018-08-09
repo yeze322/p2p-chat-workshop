@@ -6,7 +6,7 @@ const username = process.argv[2];
 const socket = jsonStream(net.connect(9000, 'localhost'));
 
 socket.on('data', (data) => {
-  console.log(data.username + '>' + data.message);
+  console.log(data.username + '> ' + data.message);
 });
 
 process.stdin.on('data', (data) => {
